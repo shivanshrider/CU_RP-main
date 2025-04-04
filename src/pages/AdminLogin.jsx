@@ -59,23 +59,23 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex flex-col lg:flex-row">
             <Toaster />
             
             {/* Left Section - Login Form */}
-            <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+            <div className="w-full lg:w-1/2 flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                    <h1 className="text-4xl font-bold text-center text-gray-900 mb-2">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">
                         CU Reimbursement
                     </h1>
-                    <h2 className="mt-3 text-center text-2xl font-semibold text-gray-900">
+                    <h2 className="mt-3 text-center text-xl sm:text-2xl font-semibold text-gray-900">
                         Admin Login
                     </h2>
                 </div>
 
-                <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                    <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
-                        <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                    <div className="bg-white py-6 sm:py-8 px-4 shadow-xl rounded-lg sm:px-10">
+                        <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                     Email address
@@ -89,7 +89,7 @@ const AdminLogin = () => {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                     />
                                 </div>
                             </div>
@@ -107,7 +107,7 @@ const AdminLogin = () => {
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                     />
                                     <button
                                         type="button"
@@ -149,10 +149,10 @@ const AdminLogin = () => {
             </div>
 
             {/* Right Section - Info */}
-            <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-red-500 to-red-700">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-red-500 to-red-700">
                 <div className="flex flex-col justify-center items-center px-8 text-white">
-                    <h1 className="text-5xl font-bold mb-6">Admin Portal</h1>
-                    <p className="text-xl text-center max-w-lg">
+                    <h1 className="text-4xl sm:text-5xl font-bold mb-4 sm:mb-6">Admin Portal</h1>
+                    <p className="text-lg sm:text-xl text-center max-w-lg">
                         Access the administrative dashboard to manage reimbursement requests for Chandigarh University.
                     </p>
                 </div>

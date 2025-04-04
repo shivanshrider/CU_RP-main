@@ -218,124 +218,110 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50">
             <Toaster />
-            <div className="max-w-7xl mx-auto">
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-3xl font-bold text-gray-900">Student Requests</h2>
-                        <div className="flex items-center gap-4">
-                            <span className="text-gray-600">
-                                Welcome, {localStorage.getItem('userName')}
-                            </span>
-                            <button
-                                onClick={handleLogout}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                            >
-                                Logout
-                            </button>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
+                        Admin Dashboard
+                    </h1>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search requests..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                            />
+                            <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
                         </div>
+                        <select
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        >
+                            <option value="all">All Requests</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
                     </div>
-
-                    <div className="flex justify-between items-center mb-6">
-                        <div className="flex gap-4">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    placeholder="Search requests..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                                />
-                            </div>
-                            <select
-                                value={filter}
-                                onChange={(e) => setFilter(e.target.value)}
-                                className="rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-                            >
-                                <option value="all">All Requests</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Under Review">Under Review</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {loading ? (
-                        <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin h-8 w-8 border-4 border-red-500 border-t-transparent rounded-full"></div>
-                        </div>
-                    ) : filteredRequests.length === 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-gray-500">No requests found</p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Case Number
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Student Name
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Roll Number
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Department
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredRequests.map((request) => (
-                                        <tr key={request._id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {request.caseNumber}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {request.studentDetails.name}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {request.studentDetails.rollNumber}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {request.studentDetails.department}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    request.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                                                    request.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                    request.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                    {request.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <button
-                                                    onClick={() => setSelectedRequest(request)}
-                                                    className="text-red-600 hover:text-red-900 mr-4"
-                                                >
-                                                    <Eye className="w-5 h-5" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
                 </div>
+
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin h-12 w-12 border-4 border-red-500 border-t-transparent rounded-full"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredRequests.map((request) => (
+                            <div
+                                key={request._id}
+                                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300"
+                            >
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        Case #{request.caseNumber}
+                                    </h3>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                        'bg-red-100 text-red-800'
+                                    }`}>
+                                        {request.status}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-500">Student Details</h4>
+                                        <p className="text-sm text-gray-900">{request.studentDetails.name}</p>
+                                        <p className="text-sm text-gray-600">{request.studentDetails.rollNumber}</p>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-500">Competition</h4>
+                                        <p className="text-sm text-gray-900">{request.competitionDetails.competitionName}</p>
+                                        <p className="text-sm text-gray-600">
+                                            {new Date(request.competitionDetails.startDate).toLocaleDateString()} - 
+                                            {new Date(request.competitionDetails.endDate).toLocaleDateString()}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.entries(request.documents || {}).map(([key, path]) => (
+                                            <a
+                                                key={key}
+                                                href={`${apiConfig.baseURL}/files/${path}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm text-blue-600 hover:text-blue-800"
+                                            >
+                                                {key}
+                                            </a>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleStatusUpdate(request.caseNumber, 'approved')}
+                                            className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                                        >
+                                            Approve
+                                        </button>
+                                        <button
+                                            onClick={() => handleStatusUpdate(request.caseNumber, 'rejected')}
+                                            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {selectedRequest && (
