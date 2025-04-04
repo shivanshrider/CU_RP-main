@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import { Search, Download, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiConfig } from '../config/api';
 
 const CheckStatus = () => {
     const [caseNumber, setCaseNumber] = useState('');
     const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -16,20 +18,24 @@ const CheckStatus = () => {
         }
 
         setLoading(true);
+        setError(null);
+        setRequest(null);
+
         try {
-            const response = await fetch(`http://localhost:5000/api/student-requests/${caseNumber}`);
+            const response = await fetch(`${apiConfig.baseURL}/student-requests/${caseNumber}`, {
+                headers: apiConfig.headers
+            });
+
             const data = await response.json();
 
-            if (response.ok) {
-                setRequest(data);
-            } else {
-                toast.error(data.message || 'Request not found');
-                setRequest(null);
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch request status');
             }
+
+            setRequest(data);
         } catch (error) {
             console.error('Error:', error);
-            toast.error('Failed to fetch request details');
-            setRequest(null);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
@@ -131,12 +137,11 @@ const CheckStatus = () => {
                                         <div key={key} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                                             <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                                             <a
-                                                href={`http://localhost:5000/${path}`}
+                                                href={`${apiConfig.baseURL}/files/${path}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-center text-red-600 hover:text-red-700"
+                                                className="text-blue-600 hover:text-blue-800"
                                             >
-                                                <Download className="w-4 h-4 mr-1" />
                                                 Download
                                             </a>
                                         </div>

@@ -13,7 +13,13 @@ const app = express();
 
 // CORS Configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://*.vercel.app'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://cu-rp-main.vercel.app',
+    'https://cu-reimbursement.vercel.app',
+    'https://*.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

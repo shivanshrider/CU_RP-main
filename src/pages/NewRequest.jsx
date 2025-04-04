@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiConfig, getAuthHeader } from '../config/api';
 
 const generateRequestId = () => {
   const date = new Date();
@@ -48,19 +49,18 @@ const NewRequest = () => {
     formData.append('fieldName', fieldName);
     formData.append('requestId', requestId);
 
-    const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:5000/api/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: formData
+    const response = await fetch(`${apiConfig.baseURL}/upload`, {
+        method: 'POST',
+        headers: {
+            ...getAuthHeader()
+        },
+        body: formData
     });
 
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.message);
+        throw new Error(data.message);
     }
 
     return data.path;
@@ -94,12 +94,11 @@ const NewRequest = () => {
         documents: uploadedDocuments,
       };
 
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/requests', {
+      const response = await fetch(`${apiConfig.baseURL}/requests`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...apiConfig.headers,
+          ...getAuthHeader()
         },
         body: JSON.stringify(payload),
       });

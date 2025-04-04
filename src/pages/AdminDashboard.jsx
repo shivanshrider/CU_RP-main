@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import { Download, Eye, Filter, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiConfig, getAuthHeader } from '../config/api';
 
 const AdminDashboard = () => {
     const [requests, setRequests] = useState([]);
@@ -32,15 +33,15 @@ const AdminDashboard = () => {
                 throw new Error('No authentication token');
             }
 
-            let url = 'http://localhost:5000/api/student-requests/all';
+            let url = `${apiConfig.baseURL}/student-requests/all`;
             if (filter !== 'all') {
-                url = `http://localhost:5000/api/student-requests/status/${filter}`;
+                url = `${apiConfig.baseURL}/student-requests/status/${filter}`;
             }
 
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    ...apiConfig.headers,
+                    ...getAuthHeader()
                 }
             });
 
@@ -90,11 +91,12 @@ const AdminDashboard = () => {
                 throw new Error('No authentication token');
             }
 
-            const response = await fetch(`http://localhost:5000/api/student-requests/${caseNumber}/status`, {
+            const response = await fetch(`${apiConfig.baseURL}/student-requests/${caseNumber}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    ...apiConfig.headers,
+                    ...getAuthHeader()
                 },
                 body: JSON.stringify({
                     status: newStatus,
@@ -171,12 +173,11 @@ const AdminDashboard = () => {
                                 <div key={key} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                                     <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                                     <a
-                                        href={`http://localhost:5000/${path}`}
+                                        href={`${apiConfig.baseURL}/files/${path}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center text-red-600 hover:text-red-700"
+                                        className="text-blue-600 hover:text-blue-800"
                                     >
-                                        <Download className="w-4 h-4 mr-1" />
                                         Download
                                     </a>
                                 </div>

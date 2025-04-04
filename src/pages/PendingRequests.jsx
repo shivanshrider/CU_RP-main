@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { FaEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { apiConfig, getAuthHeader } from '../config/api';
 
 const PendingRequest = () => {
   const [requests, setRequests] = useState([]);
@@ -9,31 +10,31 @@ const PendingRequest = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [updatedStatus, setUpdatedStatus] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchPendingRequests();
   }, []);
 
   const fetchPendingRequests = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/requests?status=Pending', {
+      const response = await fetch(`${apiConfig.baseURL}/requests?status=Pending`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          ...apiConfig.headers,
+          ...getAuthHeader()
         }
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error('Failed to fetch pending requests');
       }
 
+      const data = await response.json();
       setRequests(data);
     } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Failed to load pending requests");
+      console.error('Error:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -54,23 +55,21 @@ const PendingRequest = () => {
     if (!selectedRequest) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/requests/${selectedRequest._id}`, {
+      const response = await fetch(`${apiConfig.baseURL}/requests/${selectedRequest._id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...apiConfig.headers,
+          ...getAuthHeader()
         },
-        body: JSON.stringify({ status: updatedStatus }),
+        body: JSON.stringify({ status: updatedStatus })
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error('Failed to update request status');
       }
 
-      toast.success(`Status updated to ${updatedStatus}`);
+      await fetchPendingRequests();
+      toast.success('Request status updated successfully');
 
       if (updatedStatus === "Completed") {
         setRequests(prevRequests => 
@@ -88,8 +87,8 @@ const PendingRequest = () => {
 
       setIsOpen(false);
     } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
+      console.error('Error:', error);
+      toast.error(error.message);
     }
   };
 

@@ -4,6 +4,7 @@ import { Upload } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
+import { apiConfig } from '../config/api';
 
 const StudentRequest = () => {
     const navigate = useNavigate();
@@ -171,7 +172,7 @@ const StudentRequest = () => {
             });
 
             // Make the API call
-            const response = await axios.post('http://localhost:5000/api/student-requests', formDataToSend, {
+            const response = await axios.post(`${apiConfig.baseURL}/student-requests`, formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
