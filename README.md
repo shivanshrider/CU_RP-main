@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # CU Reimbursement Portal
 
 A comprehensive web application designed to streamline and automate the reimbursement process for Chandigarh University students participating in competitions and events. This platform provides an efficient way for students to submit reimbursement requests and for administrators to manage these requests.
@@ -142,7 +144,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Shivansh Tiwari- shivanshtiwari98958@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -152,4 +154,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your.email@example.com or create an issue in the repository.
+For support, email shivanshtiwari98958@gmail.com or create an issue in the repository.
