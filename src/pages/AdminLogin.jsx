@@ -1,40 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
 import { apiConfig } from '../config/api';
 
 const AdminLogin = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        const checkAuth = () => {
-            const token = localStorage.getItem('token');
-            const userRole = localStorage.getItem('userRole');
-            
-            if (token && userRole === 'Admin') {
-                navigate('/admin-dashboard', { replace: true });
-            }
-        };
-
-        checkAuth();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+        // Check if user is already logged in
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+        
+        if (token && userRole === 'Admin') {
+            navigate('/admin-dashboard');
+        }
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setIsLoading(true);
 
         try {
             const response = await fetch(`${apiConfig.baseURL}/auth/admin/login`, {
                 method: 'POST',
                 headers: {
-                    ...apiConfig.headers
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify(formData)
             });
 
             const data = await response.json();
@@ -42,11 +39,11 @@ const AdminLogin = () => {
             if (response.ok) {
                 // Store auth data
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userRole', data.user.role);
-                localStorage.setItem('userName', data.user.name);
+                localStorage.setItem('userRole', 'Admin');
+                localStorage.setItem('userName', data.name);
 
-                toast.success('Login successful');
-                navigate('/admin-dashboard', { replace: true });
+                toast.success('Login successful!');
+                navigate('/admin-dashboard');
             } else {
                 toast.error(data.message || 'Login failed');
             }
@@ -54,7 +51,7 @@ const AdminLogin = () => {
             console.error('Login error:', error);
             toast.error('Failed to connect to server');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -73,9 +70,9 @@ const AdminLogin = () => {
                     </h2>
                 </div>
 
-                <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                    <div className="bg-white py-6 sm:py-8 px-4 shadow-xl rounded-lg sm:px-10">
-                        <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+                <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                    <div className="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                     Email address
@@ -87,9 +84,9 @@ const AdminLogin = () => {
                                         type="email"
                                         autoComplete="email"
                                         required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
                                     />
                                 </div>
                             </div>
@@ -98,49 +95,29 @@ const AdminLogin = () => {
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                     Password
                                 </label>
-                                <div className="mt-1 relative">
+                                <div className="mt-1">
                                     <input
                                         id="password"
                                         name="password"
-                                        type={showPassword ? 'text' : 'password'}
+                                        type="password"
                                         autoComplete="current-password"
                                         required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                        {showPassword ? (
-                                            <EyeOff className="h-5 w-5 text-gray-400" />
-                                        ) : (
-                                            <Eye className="h-5 w-5 text-gray-400" />
-                                        )}
-                                    </button>
                                 </div>
                             </div>
 
                             <div>
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={isLoading}
                                     className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                                        loading
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
-                                    }`}
+                                        isLoading ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'
+                                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500`}
                                 >
-                                    {loading ? (
-                                        <div className="flex items-center">
-                                            <span className="mr-2">Signing in...</span>
-                                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                                        </div>
-                                    ) : (
-                                        'Sign in'
-                                    )}
+                                    {isLoading ? 'Signing in...' : 'Sign in'}
                                 </button>
                             </div>
                         </form>
@@ -148,14 +125,9 @@ const AdminLogin = () => {
                 </div>
             </div>
 
-            {/* Right Section - Info */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-red-500 to-red-700">
-                <div className="flex flex-col justify-center items-center px-8 text-white">
-                    <h1 className="text-4xl sm:text-5xl font-bold mb-4 sm:mb-6">Admin Portal</h1>
-                    <p className="text-lg sm:text-xl text-center max-w-lg">
-                        Access the administrative dashboard to manage reimbursement requests for Chandigarh University.
-                    </p>
-                </div>
+            {/* Right Section - Image/Illustration */}
+            <div className="hidden lg:flex w-1/2 bg-red-600">
+                {/* Add your illustration or image here */}
             </div>
         </div>
     );

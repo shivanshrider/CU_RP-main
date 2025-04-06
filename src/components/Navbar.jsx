@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import cuLogo from '../assets/cu_logo.png';
+import { toast } from 'react-hot-toast';
 
 const Navbar = ({ user }) => {
   const navigate = useNavigate();
@@ -21,7 +22,15 @@ const Navbar = ({ user }) => {
   });
 
   const handleLogout = () => {
+    // Clear all auth-related items from localStorage
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    
+    // Show success message
+    toast.success('Logged out successfully');
+    
+    // Redirect to login page
     navigate('/admin-login');
   };
 
@@ -74,18 +83,27 @@ const Navbar = ({ user }) => {
                 >
                   Student Portal
                 </NavLink>
-                <NavLink
-                  to="/admin-login"
-                  className={({ isActive }) =>
-                    `px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg transition-colors duration-300 ${
-                      isActive
-                        ? 'bg-red-600 text-white'
-                        : 'text-gray-700 hover:bg-red-50'
-                    }`
-                  }
-                >
-                  Admin Login
-                </NavLink>
+                {localStorage.getItem('token') ? (
+                  <button
+                    onClick={handleLogout}
+                    className="px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg text-gray-700 hover:bg-red-50 transition-colors duration-300"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <NavLink
+                    to="/admin-login"
+                    className={({ isActive }) =>
+                      `px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg transition-colors duration-300 ${
+                        isActive
+                          ? 'bg-red-600 text-white'
+                          : 'text-gray-700 hover:bg-red-50'
+                      }`
+                    }
+                  >
+                    Admin Login
+                  </NavLink>
+                )}
               </>
             )}
           </div>
