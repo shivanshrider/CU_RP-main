@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import cuLogo from '../assets/cu_logo.png';
 
 const Navbar = ({ user }) => {
   const navigate = useNavigate();
@@ -27,20 +28,23 @@ const Navbar = ({ user }) => {
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-16 sm:h-20">
           <div className="flex">
             <NavLink to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-red-600">CU</span>
-              <span className="ml-2 text-xl font-bold text-red-600">Reimbursement</span>
+              <img 
+                src={cuLogo} 
+                alt="Department of Academic Affairs" 
+                className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto transition-all duration-200"
+              />
             </NavLink>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {user?.role === 'Admin' ? (
               <>
                 <NavLink
                   to="/admin-dashboard"
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg transition-colors duration-300 ${
+                    `px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg transition-colors duration-300 ${
                       isActive
                         ? 'bg-red-600 text-white'
                         : 'text-gray-700 hover:bg-red-50'
@@ -51,7 +55,7 @@ const Navbar = ({ user }) => {
                 </NavLink>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg text-gray-700 hover:bg-red-50 transition-colors duration-300"
+                  className="px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg text-gray-700 hover:bg-red-50 transition-colors duration-300"
                 >
                   Logout
                 </button>
@@ -61,7 +65,7 @@ const Navbar = ({ user }) => {
                 <NavLink
                   to="/student-portal"
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg transition-colors duration-300 ${
+                    `px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg transition-colors duration-300 ${
                       isActive
                         ? 'bg-red-600 text-white'
                         : 'text-gray-700 hover:bg-red-50'
@@ -73,7 +77,7 @@ const Navbar = ({ user }) => {
                 <NavLink
                   to="/admin-login"
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg transition-colors duration-300 ${
+                    `px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded-lg transition-colors duration-300 ${
                       isActive
                         ? 'bg-red-600 text-white'
                         : 'text-gray-700 hover:bg-red-50'

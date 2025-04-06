@@ -12,6 +12,13 @@ const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
+    const statusOptions = [
+        { value: 'Pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
+        { value: 'Under Review', label: 'Under Review', color: 'bg-blue-100 text-blue-800' },
+        { value: 'Approved', label: 'Approved', color: 'bg-green-100 text-green-800' },
+        { value: 'Rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' }
+    ];
+
     useEffect(() => {
         // Check authentication
         const token = localStorage.getItem('token');
@@ -91,6 +98,12 @@ const AdminDashboard = () => {
                 throw new Error('No authentication token');
             }
 
+            console.log('Updating status with:', {
+                caseNumber,
+                newStatus,
+                comments
+            });
+
             const response = await fetch(`${apiConfig.baseURL}/student-requests/${caseNumber}/status`, {
                 method: 'PATCH',
                 headers: {
@@ -100,31 +113,37 @@ const AdminDashboard = () => {
                 },
                 body: JSON.stringify({
                     status: newStatus,
-                    adminComments: comments
+                    adminComments: comments || ''  // Ensure comments is not undefined
                 })
             });
 
             if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                console.error('Server response:', errorData);
+                
                 if (response.status === 401) {
                     toast.error('Session expired. Please login again');
                     navigate('/admin-login');
                     return;
                 }
-                throw new Error('Failed to update status');
+                
+                throw new Error(errorData?.message || 'Failed to update status');
             }
 
             const data = await response.json();
+            console.log('Update successful:', data);
+            
             toast.success('Status updated successfully');
-            fetchRequests();
+            await fetchRequests(); // Refresh the requests list
             setSelectedRequest(null);
         } catch (error) {
             console.error('Error updating status:', error);
-            toast.error(error.message || 'Failed to update status');
+            toast.error(error.message || 'Failed to update status. Please try again.');
         }
     };
 
     // Request Details Modal
-    const RequestDetailsModal = ({ request, onClose, onUpdateStatus }) => {
+    const RequestDetailsModal = ({ request, onClose, onUpdateStatus, statusOptions }) => {
         const [status, setStatus] = useState(request.status);
         const [comments, setComments] = useState(request.adminComments || '');
 
@@ -145,31 +164,31 @@ const AdminDashboard = () => {
                         <div>
                             <h4 className="font-semibold mb-2">Student Details</h4>
                             <p><span className="font-medium">Case Number:</span> {request.caseNumber}</p>
-                            <p><span className="font-medium">UID:</span> {request.uid}</p>
-                            <p><span className="font-medium">Team Name:</span> {request.teamName}</p>
-                            <p><span className="font-medium">Leader Name:</span> {request.leaderName}</p>
-                            <p><span className="font-medium">Section:</span> {request.section}</p>
-                            <p><span className="font-medium">Program:</span> {request.program}</p>
-                            <p><span className="font-medium">Contact:</span> {request.contactNo}</p>
-                            <p><span className="font-medium">Semester:</span> {request.semester}</p>
-                            <p><span className="font-medium">Team Size:</span> {request.teamSize}</p>
+                            <p><span className="font-medium">UID:</span> {request.studentDetails.rollNumber}</p>
+                            <p><span className="font-medium">Team Name:</span> {request.teamDetails.teamName}</p>
+                            <p><span className="font-medium">Leader Name:</span> {request.teamDetails.leaderName}</p>
+                            <p><span className="font-medium">Section:</span> {request.teamDetails.section}</p>
+                            <p><span className="font-medium">Program:</span> {request.teamDetails.program}</p>
+                            <p><span className="font-medium">Contact:</span> {request.teamDetails.contactNo}</p>
+                            <p><span className="font-medium">Semester:</span> {request.teamDetails.semester}</p>
+                            <p><span className="font-medium">Team Size:</span> {request.teamDetails.teamSize}</p>
                         </div>
 
                         <div>
                             <h4 className="font-semibold mb-2">Competition Details</h4>
-                            <p><span className="font-medium">Name:</span> {request.competitionName}</p>
-                            <p><span className="font-medium">Location:</span> {request.location}</p>
-                            <p><span className="font-medium">Start Date:</span> {new Date(request.startDate).toLocaleDateString()}</p>
-                            <p><span className="font-medium">End Date:</span> {new Date(request.endDate).toLocaleDateString()}</p>
-                            <p><span className="font-medium">Position:</span> {request.position}</p>
-                            <p><span className="font-medium">Prize Amount:</span> ₹{request.prizeAmount}</p>
+                            <p><span className="font-medium">Name:</span> {request.competitionDetails.competitionName}</p>
+                            <p><span className="font-medium">Location:</span> {request.competitionDetails.location}</p>
+                            <p><span className="font-medium">Start Date:</span> {new Date(request.competitionDetails.startDate).toLocaleDateString()}</p>
+                            <p><span className="font-medium">End Date:</span> {new Date(request.competitionDetails.endDate).toLocaleDateString()}</p>
+                            <p><span className="font-medium">Position:</span> {request.competitionDetails.position}</p>
+                            <p><span className="font-medium">Prize Amount:</span> ₹{request.competitionDetails.prizeAmount}</p>
                         </div>
                     </div>
 
                     <div className="mt-6">
                         <h4 className="font-semibold mb-2">Attachments</h4>
                         <div className="grid grid-cols-2 gap-4">
-                            {Object.entries(request.attachments || {}).map(([key, path]) => (
+                            {Object.entries(request.documents || {}).map(([key, path]) => (
                                 <div key={key} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                                     <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                                     <a
@@ -187,28 +206,34 @@ const AdminDashboard = () => {
 
                     <div className="mt-6">
                         <h4 className="font-semibold mb-2">Update Status</h4>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col gap-4">
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                                className="rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2"
                             >
-                                <option value="Pending">Pending</option>
-                                <option value="Under Review">Under Review</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
+                                {statusOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </select>
                             <textarea
                                 value={comments}
                                 onChange={(e) => setComments(e.target.value)}
                                 placeholder="Add comments..."
-                                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                                rows="4"
+                                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2"
                             />
                             <button
-                                onClick={() => onUpdateStatus(request.caseNumber, status, comments)}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                                onClick={() => {
+                                    if (status !== request.status || comments !== request.adminComments) {
+                                        onUpdateStatus(request.caseNumber, status, comments);
+                                    }
+                                }}
+                                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
                             >
-                                Update
+                                Update Status
                             </button>
                         </div>
                     </div>
@@ -226,26 +251,30 @@ const AdminDashboard = () => {
                         Admin Dashboard
                     </h1>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search requests..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                            />
-                            <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div className="relative flex-grow">
+                                <input
+                                    type="text"
+                                    placeholder="Search requests..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                />
+                                <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                            </div>
+                            <select
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                            >
+                                <option value="all">All Requests</option>
+                                {statusOptions.map((status) => (
+                                    <option key={status.value} value={status.value}>
+                                        {status.label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                        <select
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                        >
-                            <option value="all">All Requests</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
                     </div>
                 </div>
 
@@ -265,11 +294,9 @@ const AdminDashboard = () => {
                                         Case #{request.caseNumber}
                                     </h3>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                        'bg-red-100 text-red-800'
+                                        statusOptions.find(s => s.value === request.status)?.color || 'bg-gray-100 text-gray-800'
                                     }`}>
-                                        {request.status}
+                                        {statusOptions.find(s => s.value === request.status)?.label || request.status}
                                     </span>
                                 </div>
 
@@ -302,35 +329,30 @@ const AdminDashboard = () => {
                                             </a>
                                         ))}
                                     </div>
+                                </div>
 
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                            onClick={() => handleStatusUpdate(request.caseNumber, 'approved')}
-                                            className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleStatusUpdate(request.caseNumber, 'rejected')}
-                                            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                                        >
-                                            Reject
-                                        </button>
-                                    </div>
+                                <div className="mt-4 flex justify-end gap-2">
+                                    <button
+                                        onClick={() => setSelectedRequest(request)}
+                                        className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        View Details
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
-            </div>
 
-            {selectedRequest && (
-                <RequestDetailsModal
-                    request={selectedRequest}
-                    onClose={() => setSelectedRequest(null)}
-                    onUpdateStatus={updateStatus}
-                />
-            )}
+                {selectedRequest && (
+                    <RequestDetailsModal
+                        request={selectedRequest}
+                        onClose={() => setSelectedRequest(null)}
+                        onUpdateStatus={updateStatus}
+                        statusOptions={statusOptions}
+                    />
+                )}
+            </div>
         </div>
     );
 };
