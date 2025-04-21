@@ -40,11 +40,11 @@ const Navbar = ({ user }) => {
         <div className="flex justify-between h-16 sm:h-20">
           <div className="flex">
             <NavLink to="/" className="flex-shrink-0 flex items-center">
-              <img 
+{/*               <img 
                 src={cuLogo} 
                 alt="Department of Academic Affairs" 
                 className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto transition-all duration-200"
-              />
+              /> */}
             </NavLink>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
